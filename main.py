@@ -12,8 +12,9 @@ WHITE = 255, 255, 255
 RED = 255, 0, 0
 GREEN = 0, 255, 0
 BLUE = 0, 0, 255
-main_surface = pygame.display.set_mode(screen)
 
+font = pygame.font.SysFont('Verdana', 20)
+main_surface = pygame.display.set_mode(screen)
 ball = pygame.Surface((20, 20))
 ball.fill(BLUE)
 ball_rect = ball.get_rect()
@@ -45,9 +46,10 @@ score = 0
 is_working = True
 while is_working:
     FPS.tick(60)
+    pressed_keys = pygame.key.get_pressed()
     main_surface.fill(BLACK)
     main_surface.blit(ball, ball_rect)
-    pressed_keys = pygame.key.get_pressed()
+    main_surface.blit(font.render(f"Score: {score}", True, WHITE), (width-110, 0))
 
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -63,13 +65,9 @@ while is_working:
         if enemy[1].left < 0:
             enemies.pop(enemies.index(enemy))
         if ball_rect.colliderect(enemy[1]):
-            enemies.pop(enemies.index(enemy))
-            if score > 0:
-                score -= 1
-                print(f"Total score: {score}")
-            else:
-                print("\n!!!Game Over!!!\n")
-                is_working = False
+            # enemies.pop(enemies.index(enemy))
+            print("\n!!!Game Over!!!\n")
+            is_working = False
 
     for bonus in bonuses:
         bonus[1] = bonus[1].move(0, bonus[2])
@@ -79,15 +77,14 @@ while is_working:
         if ball_rect.colliderect(bonus[1]):
             bonuses.pop(bonuses.index(bonus))
             score += 1
-            print(f"Total score: {score}")
 
-    if pressed_keys[K_DOWN] and not ball_rect.bottom >= height:
+    if pressed_keys[K_DOWN] and ball_rect.bottom < height:
         ball_rect = ball_rect.move(0, ball_speed)
-    if pressed_keys[K_UP] and not ball_rect.top <= 0:
+    if pressed_keys[K_UP] and ball_rect.top > 0:
         ball_rect = ball_rect.move(0, -ball_speed)
-    if pressed_keys[K_RIGHT] and not ball_rect.right >= width:
+    if pressed_keys[K_RIGHT] and ball_rect.right < width:
         ball_rect = ball_rect.move(ball_speed, 0)
-    if pressed_keys[K_LEFT] and not ball_rect.left <= 0:
+    if pressed_keys[K_LEFT] and ball_rect.left > 0:
         ball_rect = ball_rect.move(-ball_speed, 0)
 
     # print(f"{len(enemies)}___{len(bonuses)}")
