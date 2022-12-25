@@ -1,6 +1,7 @@
 import pygame
 from pygame.constants import QUIT, K_DOWN, K_UP, K_LEFT, K_RIGHT
 from random import randint
+from os import listdir
 
 
 pygame.init()
@@ -17,7 +18,12 @@ background_X = 0
 background_X2 = background.get_width()
 background_speed = 3
 
-player = pygame.image.load('media/player.png').convert_alpha()
+PLAYER_IMGS_PATH = 'player_imgs'
+player_imgs = [
+    pygame.image.load(f"{PLAYER_IMGS_PATH}/{file}").convert_alpha()
+    for file in listdir(PLAYER_IMGS_PATH)
+]
+player = player_imgs[0]
 player_rect = player.get_rect()
 player_speed = 5
 
@@ -34,13 +40,16 @@ def create_character(enemy=False):
 
 
 CREATE_ENEMY = pygame.USEREVENT + 1
-CREATE_BONUS = pygame.USEREVENT + 2
 pygame.time.set_timer(CREATE_ENEMY, 3000)
-pygame.time.set_timer(CREATE_BONUS, 2000)
+CREATE_BONUS = pygame.USEREVENT + 2
+pygame.time.set_timer(CREATE_BONUS, 2500)
+CHANGE_PLAYER_IMG = pygame.USEREVENT + 3
+pygame.time.set_timer(CHANGE_PLAYER_IMG, 100)
 
 enemies = []
 bonuses = []
 score = 0
+img_index = 0
 is_working = True
 while is_working:
     FPS.tick(60)
@@ -52,7 +61,7 @@ while is_working:
         background_X = background.get_width()
     if background_X2 < -background.get_width():
         background_X2 = background.get_width()
-    
+
     main_surface.blit(background, (background_X, 0))
     main_surface.blit(background, (background_X2, 0))
     main_surface.blit(player, player_rect)
@@ -65,6 +74,11 @@ while is_working:
             enemies.append(create_character(enemy=True))
         if event.type == CREATE_BONUS:
             bonuses.append(create_character(enemy=False))
+        if event.type == CHANGE_PLAYER_IMG:
+            if img_index == len(player_imgs) - 1:
+                img_index = -1
+            img_index += 1
+            player = player_imgs[img_index]
 
     for enemy in enemies:
         enemy[1] = enemy[1].move(-enemy[2], 0)
